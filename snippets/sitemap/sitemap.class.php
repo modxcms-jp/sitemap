@@ -105,7 +105,9 @@ class evoSiteMapSnippet
 
         $date_diff = round(($_SERVER['REQUEST_TIME'] - (int)$doc['editedon']) / 86400);
 
-        if ($this->tvExists($priority))   $doc[$priority] = $this->getTV($docid, $priority);
+        // TV の値があればそれを、無い（TV が無い・値が空）なら更新日などから決めた値を使う
+        $tvPriority = $this->tvExists($priority) ? (string)$this->getTV($docid, $priority) : '';
+        if ($tvPriority !== '')           $doc[$priority] = $tvPriority;
         elseif ($docid === $siteStart)    $doc[$priority] = '1.0';
         elseif ($date_diff < 7)           $doc[$priority] = '0.9';
         elseif ($date_diff < 14)          $doc[$priority] = '0.8';
@@ -114,7 +116,8 @@ class evoSiteMapSnippet
         elseif (1000 < $date_diff)        $doc[$priority] = $doc['hasImage'] ? '0.4' : '0.3';
         else                              $doc[$priority] = '0.5';
 
-        if ($this->tvExists($changefreq)) $doc[$changefreq] = $this->getTV($docid, $changefreq);
+        $tvChangefreq = $this->tvExists($changefreq) ? (string)$this->getTV($docid, $changefreq) : '';
+        if ($tvChangefreq !== '')         $doc[$changefreq] = $tvChangefreq;
         elseif ($docid === $siteStart)    $doc[$changefreq] = 'always';
         elseif ($doc['isfolder'])         $doc[$changefreq] = 'always';
         elseif (365 < $date_diff)         $doc[$changefreq] = 'never';
@@ -201,7 +204,7 @@ class evoSiteMapSnippet
         return isset($this->children[$key][$parent]) ? $this->children[$key][$parent] : array();
     }
 
-    private function tvExists($tvName)
+    protected function tvExists($tvName)
     {
         global $modx;
 

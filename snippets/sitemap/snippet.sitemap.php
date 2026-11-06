@@ -107,13 +107,21 @@ switch ($format) {
 
         $output[] = '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
+        // XML の実体参照だけを使う（htmlentities() は &eacute; など XML に無い実体参照を作る）
+        $charset = $modx->config['modx_charset'] ?: 'UTF-8';
+        $esc = function ($value) use ($charset) {
+            return htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, $charset);
+        };
         foreach ($docs as $doc) {
             $output[] = '    <url>';
-            $output[] = '        <loc>' . htmlentities($doc['url']) . '</loc>';
+            $output[] = '        <loc>' . $esc($doc['url']) . '</loc>';
             if ($doc['editedon'])
                 $output[] = '        <lastmod>' . date('Y-m-d', $doc['editedon']) . '</lastmod>';
-            $output[] = '        <priority>' . $doc[$priority] . '</priority>';
-            $output[] = '        <changefreq>' . $doc[$changefreq] . '</changefreq>';
+            // 空の priority・changefreq はサイトマップの規格に合わないので書かない
+            if ((string)$doc[$priority] !== '')
+                $output[] = '        <priority>' . $esc($doc[$priority]) . '</priority>';
+            if ((string)$doc[$changefreq] !== '')
+                $output[] = '        <changefreq>' . $esc($doc[$changefreq]) . '</changefreq>';
             $output[] = '    </url>';
         }
 
