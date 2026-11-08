@@ -10,7 +10,7 @@ ini_set('memory_limit', '-1');
  * Outputs a machine readable site map for search engines and robots.
  *
  * @category snippet
- * @version 1.2 (2026-11-06)
+ * @version 1.2.1 (2026-11-08)
  * @license LGPL
  * @author Grzegorz Adamiak [grad], ncrossland, DivanDesign (http://www.DivanDesign.biz), yama
  * @internal @modx_category Navigation
