@@ -161,11 +161,13 @@ class evoSiteMapSnippet
         $output = '';
         while ($pid = $modx->getDocument($docid, 'parent')) {
             $tv = $modx->getTemplateVar($tv_name, '*', $docid);
-            if (($tv['value'] && substr($tv['value'], 0, 8) != '@INHERIT') || !$tv['value']) {
-                $output = $tv['value'];
+            // TV が文書のテンプレートに割り当てられていないと false が返る
+            $value = (is_array($tv) && isset($tv['value'])) ? (string)$tv['value'] : '';
+            if (strpos($value, '@INHERIT') !== 0) {
+                $output = $value;
                 break;
             }
-            $output = trim(substr($tv['value'], 8));
+            $output = trim(substr($value, 8));
             $docid = $pid['parent'];
         }
         return $output;
